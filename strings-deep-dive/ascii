@@ -1,0 +1,134 @@
++----------------+
+| String Header  |
++----------------+
+| ptr *byte  ----+--> h e l l o (byte sequence in memory)
+| len int = 5    |
++----------------+
+
+h        e        l        l        o
+01101000 01100101 01101100 01101100 01101111
+abc123
+
+
+
+
+
++----------------+
+| String Header  |
++----------------+
+| ptr *byte  ----+-->  h e l l o(immutable byte sequence)
+| len int = 5    |     ↑
++----------------+     | 
+                       Cannot modify this byte!
+
+
+
+
+
++----------------+         
+| a header       |         
++----------------+        
+| ptr  ----------+--------> h e l l o
+| len = 5        |         
++----------------+        
+
++----------------+         
+| b header       |         
++----------------+        
+| ptr  ----------+--------> w o r l d
+| len = 5        |         
++----------------+        
+
++----------------+         New allocation for combined data
+| c header       |         
++----------------+        
+| ptr  ----------+--------> h e l l o w o r l d
+| len = 10       |         
++----------------+
+
+
+s1 := "hello, world"
+
+Memory:
++----------------+
+| s1 Header      |
++----------------+
+| ptr *byte  ----+---> h e l l o ,   w o r l d 
+| len int = 12   |
++----------------+
+
+s2 := s1[0:5]  // "hello"
+
+Memory:
++----------------+      +----------------+
+| s2 Header      |      | s1 Header      |
++----------------+      +----------------+
+| ptr *byte  ----+----> h e l l o ,   w o r l d 
+| len int = 5    |      | ptr *byte  ----+-->
++----------------+      | len int = 12    |
+                        +----------------+
+
+h e l l o , w o r l d
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+C-style string:
++---+---+---+---+---+---+
+| h | e | l | l | o | \0|  <- Null terminator required
++---+---+---+---+---+---+
+
+Go string:
+Header:                  Backing byte sequence:
++----------------+       +---+---+---+---+---+
+| ptr *byte  ----+------>| h | e | l | l | o |  <- No null terminator
+| len int = 5    |       +---+---+---+---+---+
++----------------+
+
+
+
+
+
+
+
+
+
+Characters: | h | e | l | l | o | , |   | 世 | 界 |
+Bytes:      |68 |65 |6C |6C |6F |2C |20 |E4 B8 96|E7 95 8C|
+Indices:    | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7  8  9 |10 11 12|
+            
+When iterating with range:
+Range index: 0  1  2  3  4  5  6  7      10
+Rune:        h  e  l  l  o  ,     世     界
+
+
+
+String in memory:
+[h][e][l][l][o][,][ ][E4][B8][96][E7][95][8C]
+ |  |  |  |  |  |  |   |        |         |
+ |  |  |  |  |  |  |   |        |         +-- Single rune '界' (3 bytes)
+ |  |  |  |  |  |  |   |        |
+ |  |  |  |  |  |  |   +--------+----------- Single rune '世' (3 bytes)
+ |  |  |  |  |  |  |
+ +--+--+--+--+--+--+------------------- Individual ASCII runes (1 byte each)
+
+Converting between string and []rune:
+
+String: "hello, 世界"   
+        [h][e][l][l][o][,][ ][E4][B8][96][E7][95][8C]
+         (13 bytes total)
+
+[]rune:  [h] [e] [l] [l] [o] [,] [ ] [世] [界]
+         (9 runes × 4 bytes per rune = 36 bytes total)
