@@ -1,0 +1,7 @@
++----------------+
+| Slice Header  |
++----------------+
+| ptr *byte  ----+--> [1,2,3] (byte sequence in memory)
+| len int = 3
+| capactiy int = 3
++----------------+

@@ -10,6 +10,8 @@ func main() {
 	var1, var2 := 1, 2
 	fmt.Println(var1, var2)
 
-	const myConst string = "blah"
+	const myConst string = "constant"
+
+	const sConst = 1.2
 
 }
